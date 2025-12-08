@@ -58,14 +58,16 @@ def benchmark_method(
     loader = PDBLoader(quiet=True)
     residues, waters, structure = loader.load(wet_pdb)
 
-    print(f"系统规模: {len(residues)} 个残基, {len(waters.coords) if waters.coords is not None else 0} 个水分子")
+    print(
+        f"系统规模: {len(residues)} 个残基, {len(waters.coords) if waters.coords is not None else 0} 个水分子"
+    )
 
     results = {
         "method": method_type.value,
         "num_residues": len(residues),
         "num_waters": len(waters.coords) if waters.coords is not None else 0,
         "process_times": {},  # 进程数 -> 时间列表
-        "speedups": {},       # 进程数 -> 加速比
+        "speedups": {},  # 进程数 -> 加速比
         "memory_deltas": {},  # 进程数 -> 内存增量（近似）
         "result_consistency": True,  # 结果一致性标志
     }
@@ -88,7 +90,9 @@ def benchmark_method(
         if run == 0:
             # 记录串行结果用于比较
             serial_accessible = sum(1 for r in serial_results if r.accessible)
-            print(f"   运行 {run+1}: {serial_times[-1]:.3f}s, 可及残基: {serial_accessible}/{len(serial_results)}")
+            print(
+                f"   运行 {run+1}: {serial_times[-1]:.3f}s, 可及残基: {serial_accessible}/{len(serial_results)}"
+            )
 
     avg_serial_time = np.mean(serial_times)
     std_serial_time = np.std(serial_times)
@@ -116,7 +120,9 @@ def benchmark_method(
             # 验证结果一致性（与第一次串行运行比较）
             if run == 0:
                 parallel_accessible = sum(1 for r in parallel_results if r.accessible)
-                serial_accessible = sum(1 for r in serial_results_list[0] if r.accessible)
+                serial_accessible = sum(
+                    1 for r in serial_results_list[0] if r.accessible
+                )
 
                 # 详细比较（可选）
                 if len(parallel_results) == len(serial_results_list[0]):
@@ -125,8 +131,10 @@ def benchmark_method(
                         if p_res.accessible != s_res.accessible:
                             mismatches += 1
                             if mismatches <= 3:  # 只打印前几个不匹配
-                                print(f"     警告: 残基 {p_res.residue.chain}:{p_res.residue.resnum} "
-                                      f"可及性不匹配 (并行: {p_res.accessible}, 串行: {s_res.accessible})")
+                                print(
+                                    f"     警告: 残基 {p_res.residue.chain}:{p_res.residue.resnum} "
+                                    f"可及性不匹配 (并行: {p_res.accessible}, 串行: {s_res.accessible})"
+                                )
 
                     if mismatches > 0:
                         print(f"     总不匹配数: {mismatches}/{len(parallel_results)}")
@@ -134,10 +142,14 @@ def benchmark_method(
                     else:
                         print(f"     结果一致性: ✓ 全部匹配")
                 else:
-                    print(f"     错误: 结果长度不同 (并行: {len(parallel_results)}, 串行: {len(serial_results_list[0])})")
+                    print(
+                        f"     错误: 结果长度不同 (并行: {len(parallel_results)}, 串行: {len(serial_results_list[0])})"
+                    )
                     all_consistent = False
 
-                print(f"   运行 {run+1}: {parallel_times[-1]:.3f}s, 可及残基: {parallel_accessible}/{len(parallel_results)}")
+                print(
+                    f"   运行 {run+1}: {parallel_times[-1]:.3f}s, 可及残基: {parallel_accessible}/{len(parallel_results)}"
+                )
             else:
                 print(f"   运行 {run+1}: {parallel_times[-1]:.3f}s")
 
@@ -173,16 +185,22 @@ def print_summary_table(results_list: List[Dict[str, Any]]) -> None:
         print(f"系统: {result['num_residues']}残基, {result['num_waters']}水分子")
         print(f"结果一致性: {'✓' if result['result_consistency'] else '✗'}")
 
-        print(f"\n{'进程数':<8} {'平均时间(s)':<12} {'标准差':<10} {'加速比':<10} {'效率(%)':<10}")
+        print(
+            f"\n{'进程数':<8} {'平均时间(s)':<12} {'标准差':<10} {'加速比':<10} {'效率(%)':<10}"
+        )
         print(f"{'-'*50}")
 
         # 串行结果
-        print(f"{'1 (串行)':<8} {result['serial_time']:<12.3f} {result['serial_time_std']:<10.3f} {'1.00':<10} {'100.0':<10}")
+        print(
+            f"{'1 (串行)':<8} {result['serial_time']:<12.3f} {result['serial_time_std']:<10.3f} {'1.00':<10} {'100.0':<10}"
+        )
 
         # 并行结果
         for num_proc, metrics in sorted(result["process_times"].items()):
-            print(f"{num_proc:<8} {metrics['mean']:<12.3f} {metrics['std']:<10.3f} "
-                  f"{metrics['speedup']:<10.2f} {metrics['efficiency']*100:<10.1f}")
+            print(
+                f"{num_proc:<8} {metrics['mean']:<12.3f} {metrics['std']:<10.3f} "
+                f"{metrics['speedup']:<10.2f} {metrics['efficiency']*100:<10.1f}"
+            )
 
 
 def analyze_scalability(results_list: List[Dict[str, Any]]) -> None:
@@ -210,7 +228,7 @@ def analyze_scalability(results_list: List[Dict[str, Any]]) -> None:
             # S = 1 / ((1-p) + p/N)
             # 其中S为加速比，N为进程数
             # 解出 p = (1/S - 1) / (1/N - 1)
-            p = (1/max_speedup - 1) / (1/max_proc - 1)
+            p = (1 / max_speedup - 1) / (1 / max_proc - 1)
             serial_fraction = 1 - p
 
             print(f"  最大加速比: {max_speedup:.2f}x (在{max_proc}个线程下)")
@@ -232,37 +250,32 @@ def analyze_scalability(results_list: List[Dict[str, Any]]) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="并行化性能对比测试脚本"
-    )
+    parser = argparse.ArgumentParser(description="并行化性能对比测试脚本")
     parser.add_argument(
         "--wet-pdb",
         default="./pdb/SUMO1_water.pdb",
-        help="含水PDB文件路径 (默认: ./pdb/SUMO1_water.pdb)"
+        help="含水PDB文件路径 (默认: ./pdb/SUMO1_water.pdb)",
     )
     parser.add_argument(
         "--dry-pdb",
         default="./pdb/SUMO1.pdb",
-        help="无水PDB文件路径 (默认: ./pdb/SUMO1.pdb)"
+        help="无水PDB文件路径 (默认: ./pdb/SUMO1.pdb)",
     )
     parser.add_argument(
         "--processes",
         type=int,
         nargs="+",
         default=[1, 2, 4, 8],
-        help="要测试的并行进程数列表 (默认: 1 2 4 8)"
+        help="要测试的并行进程数列表 (默认: 1 2 4 8)",
     )
     parser.add_argument(
-        "--runs",
-        type=int,
-        default=3,
-        help="每个配置的运行次数 (默认: 3)"
+        "--runs", type=int, default=3, help="每个配置的运行次数 (默认: 3)"
     )
     parser.add_argument(
         "--methods",
         choices=["centroid", "peratom", "both"],
         default="both",
-        help="要测试的方法 (默认: both)"
+        help="要测试的方法 (默认: both)",
     )
 
     args = parser.parse_args()
@@ -299,6 +312,7 @@ def main():
         except Exception as e:
             print(f"测试方法 {method_type.value} 时出错: {e}")
             import traceback
+
             traceback.print_exc()
 
     # 输出结果
@@ -310,6 +324,7 @@ def main():
         output_file = "benchmark_results.txt"
         with open(output_file, "w", encoding="utf-8") as f:
             import json
+
             json.dump(all_results, f, indent=2, default=str)
         print(f"\n详细结果已保存到: {output_file}")
     else:

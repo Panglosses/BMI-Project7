@@ -60,16 +60,22 @@ class ResultFormatter:
         for result in custom_results:
             key = (result.residue.chain, str(result.residue.resnum))
             sasa_accessible = sasa_map.get(key, "No")
-            match = "Match" if result.accessible == (sasa_accessible == "Yes") else "Mismatch"
+            match = (
+                "Match"
+                if result.accessible == (sasa_accessible == "Yes")
+                else "Mismatch"
+            )
 
-            comparison.append([
-                result.residue.chain,
-                result.residue.resnum,
-                result.residue.resname,
-                "Yes" if result.accessible else "No",
-                sasa_accessible,
-                match,
-            ])
+            comparison.append(
+                [
+                    result.residue.chain,
+                    result.residue.resnum,
+                    result.residue.resname,
+                    "Yes" if result.accessible else "No",
+                    sasa_accessible,
+                    match,
+                ]
+            )
 
         # 添加空行和统计信息
         comparison.append(["", "", "", "", "", ""])

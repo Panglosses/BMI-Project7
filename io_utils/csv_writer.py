@@ -1,7 +1,3 @@
-"""
-CSV文件写入器
-"""
-
 import csv
 from typing import List, Any, Optional
 from pathlib import Path

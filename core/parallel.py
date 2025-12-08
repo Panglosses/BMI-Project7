@@ -3,12 +3,12 @@
 利用Python 3.14自由线程特性（PEP 703）实现KDTree查询并行化
 """
 
-from typing import List, Optional, Any, Callable
+from typing import List, Optional
 import numpy as np
 from scipy.spatial import KDTree
 import concurrent.futures
-import threading
-import time
+import threading  # 好像不能删
+import time  # 好像不能删，被别人调用的时候有用？需要验证一下
 
 
 class ParallelKDTreeQuery:

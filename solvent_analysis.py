@@ -18,7 +18,7 @@ try:
         WaterInfo,
         AccessibilityResult,
         AnalysisConfig,
-        MethodType
+        MethodType,
     )
 
     # 使这些类在模块级别可用
@@ -27,7 +27,7 @@ try:
         "WaterInfo",
         "AccessibilityResult",
         "AnalysisConfig",
-        "MethodType"
+        "MethodType",
     ]
 
 except ImportError as e:

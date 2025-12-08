@@ -5,7 +5,6 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
 
 from core.data_models import AnalysisConfig, MethodType
 from io_utils import PDBLoader, CSVWriter, ResultFormatter

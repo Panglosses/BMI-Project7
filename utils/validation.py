@@ -37,13 +37,26 @@ def validate_pdb_file(filepath: Union[str, Path]) -> bool:
         with open(path, "r") as f:
             first_line = f.readline().strip()
             # PDB文件通常以"HEADER"、"ATOM"或"HETATM"开头
-            if not any(first_line.startswith(prefix) for prefix in ["HEADER", "ATOM", "HETATM", "MODEL"]):
+            if not any(
+                first_line.startswith(prefix)
+                for prefix in ["HEADER", "ATOM", "HETATM", "MODEL"]
+            ):
                 # 有些PDB文件可能没有HEADER，但第一行应该是有效的PDB记录
                 if len(first_line) > 0 and first_line[0] not in [" ", "\t"]:
                     # 检查是否是有效的PDB记录类型
                     record_type = first_line[0:6].strip()
-                    if record_type not in ["HEADER", "ATOM", "HETATM", "MODEL", "ENDMDL", "TER", "END"]:
-                        raise ValueError(f"PDB文件格式无效，第一行: {first_line[:50]}...")
+                    if record_type not in [
+                        "HEADER",
+                        "ATOM",
+                        "HETATM",
+                        "MODEL",
+                        "ENDMDL",
+                        "TER",
+                        "END",
+                    ]:
+                        raise ValueError(
+                            f"PDB文件格式无效，第一行: {first_line[:50]}..."
+                        )
     except UnicodeDecodeError:
         raise ValueError(f"PDB文件不是文本格式: {filepath}")
 

@@ -7,7 +7,8 @@
       "Bash(./bmi/Scripts/python:*)",
       "Bash(cat:*)",
       "Bash(ls:*)",
-      "Bash(.bmiScriptsActivate.ps1)"
+      "Bash(.bmiScriptsActivate.ps1)",
+      "Bash(/c/Users/sha1r/Desktop/BMI-Project7/bmi/Scripts/python -m pip:*)"
     ],
     "deny": [],
     "ask": []

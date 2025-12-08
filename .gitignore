@@ -32,11 +32,14 @@ Thumbs.db
 htmlcov/
 
 # 虚拟环境（通用）
+pyenv/
+myenv/
 venv/
 env/
 ENV/
 
 # IDE配置文件
+.claude/
 .vscode/
 .idea/
 *.swp

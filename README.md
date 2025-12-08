@@ -17,7 +17,13 @@
 ### 安装依赖
 
 ```bash
-pip install numpy scipy biopython freesasa
+# 给脚本添加执行权限（Linux/macOS）
+chmod +x setup.sh
+
+# 运行安装脚本
+./setup.sh
+
+# 该脚本可自动创建虚拟环境bmi并安装所有依赖
 ```
 
 ### 命令行使用

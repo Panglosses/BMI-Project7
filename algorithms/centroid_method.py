@@ -3,7 +3,6 @@
 """
 
 from typing import List, Optional
-import numpy as np
 
 from core.data_models import (
     ResidueInfo,
