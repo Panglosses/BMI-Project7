@@ -3,10 +3,10 @@ CSV文件写入器
 """
 
 import csv
-from typing import List, Any
+from typing import List, Any, Optional
 from pathlib import Path
 
-from ..core.data_models import AccessibilityResult
+from core.data_models import AccessibilityResult
 
 
 class CSVWriter:
@@ -33,9 +33,12 @@ class CSVWriter:
 
             if include_header:
                 header = [
-                    "chain", "resnum", "resname",
-                    "minDist_A", "nWaterWithinR",
-                    f"accessible_{results[0].method if results else 'unknown'}"
+                    "chain",
+                    "resnum",
+                    "resname",
+                    "minDist_A",
+                    "nWaterWithinR",
+                    f"accessible_{results[0].method if results else 'unknown'}",
                 ]
                 writer.writerow(header)
 
@@ -75,7 +78,7 @@ class CSVWriter:
     def write_generic(
         filepath: str,
         data: List[List[Any]],
-        header: List[str] = None,
+        header: Optional[List[str]] = None,
     ) -> None:
         """
         通用CSV写入

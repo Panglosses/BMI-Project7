@@ -4,9 +4,9 @@ PDB文件加载器
 
 from typing import Tuple, List, Optional
 import numpy as np
-from Bio.PDB import PDBParser
+from Bio.PDB import PDBParser  # type: ignore
 
-from ..core.data_models import ResidueInfo, WaterInfo
+from core.data_models import ResidueInfo, WaterInfo
 
 
 class PDBLoader:
@@ -25,7 +25,9 @@ class PDBLoader:
         """
         self.quiet = quiet
 
-    def load(self, pdb_path: str) -> Tuple[List[ResidueInfo], WaterInfo, Optional]:
+    def load(
+        self, pdb_path: str
+    ) -> Tuple[List[ResidueInfo], WaterInfo, Optional[object]]:
         """
         加载PDB文件
 
@@ -86,7 +88,7 @@ class PDBLoader:
             element = getattr(atom, "element", "").upper()
             atom_name = atom.get_name().strip().upper()
 
-            if (atom_name in self.WATER_OXYGEN_NAMES or element == "O"):
+            if atom_name in self.WATER_OXYGEN_NAMES or element == "O":
                 water_coords.append(atom.coord)
                 water_names.append(residue.get_resname())
 
@@ -118,7 +120,9 @@ class PDBLoader:
 
 
 # 兼容性函数
-def load_pdb(pdb_path: str, quiet: bool = False) -> Tuple[List[ResidueInfo], WaterInfo, Optional]:
+def load_pdb(
+    pdb_path: str, quiet: bool = False
+) -> Tuple[List[ResidueInfo], WaterInfo, Optional[object]]:
     """
     兼容性函数，保持与原load_pdb.py相同的接口
 

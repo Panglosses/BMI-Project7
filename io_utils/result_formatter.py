@@ -3,7 +3,7 @@
 """
 
 from typing import List, Dict, Any
-from ..core.data_models import AccessibilityResult
+from core.data_models import AccessibilityResult
 
 
 class ResultFormatter:

@@ -4,7 +4,10 @@
       "Bash(python:*)",
       "Bash(source:*)",
       "Bash(./bmi/Scripts/pip list:*)",
-      "Bash(./bmi/Scripts/python:*)"
+      "Bash(./bmi/Scripts/python:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(.bmiScriptsActivate.ps1)"
     ],
     "deny": [],
     "ask": []

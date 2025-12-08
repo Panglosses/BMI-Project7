@@ -7,9 +7,9 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
-from ..core.data_models import AnalysisConfig, MethodType
-from ..io import PDBLoader, CSVWriter, ResultFormatter
-from ..algorithms import MethodFactory, FreeSASAWrapper
+from core.data_models import AnalysisConfig, MethodType
+from io_utils import PDBLoader, CSVWriter, ResultFormatter
+from algorithms import MethodFactory, FreeSASAWrapper
 
 
 def parse_args(args=None):

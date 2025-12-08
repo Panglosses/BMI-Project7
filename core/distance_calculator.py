@@ -8,6 +8,7 @@ import numpy as np
 from scipy.spatial import KDTree
 
 from .data_models import ResidueInfo, WaterInfo
+from .parallel import ParallelKDTreeQuery  # 并行查询组件
 
 
 class DistanceCalculator(ABC):
@@ -58,14 +59,17 @@ class ChunkedDistanceCalculator(DistanceCalculator):
     使用分块计算优化内存使用
     """
 
-    def __init__(self, chunk_size: int = 5000):
+    def __init__(self, chunk_size: int = 5000, num_processes: int = 1):
         """
         Args:
             chunk_size: 分块大小
+            num_processes: 并行进程数（使用线程），1表示串行
         """
         self.chunk_size = chunk_size
+        self.num_processes = num_processes
         self._water_tree: Optional[KDTree] = None
         self._water_coords: Optional[np.ndarray] = None
+        self._parallel_query: Optional[ParallelKDTreeQuery] = None
 
     def compute_min_distances(
         self,
@@ -111,12 +115,24 @@ class ChunkedDistanceCalculator(DistanceCalculator):
             not np.array_equal(self._water_coords, water_coords)):
             self._water_tree = KDTree(water_coords)
             self._water_coords = water_coords.copy()
+            # 重置并行查询器（树已改变）
+            self._parallel_query = None
 
-        # 批量查询
-        counts = np.zeros(len(residues), dtype=int)
-        for i, coord in enumerate(res_coords):
-            indices = self._water_tree.query_ball_point(coord, radius)
-            counts[i] = len(indices)
+        # 根据并行进程数选择查询方式
+        if self.num_processes <= 1:
+            # 串行查询
+            counts = np.zeros(len(residues), dtype=int)
+            for i, coord in enumerate(res_coords):
+                indices = self._water_tree.query_ball_point(coord, radius)
+                counts[i] = len(indices)
+        else:
+            # 并行查询
+            if self._parallel_query is None or self._parallel_query.tree is not self._water_tree:
+                self._parallel_query = ParallelKDTreeQuery(self._water_tree, self.num_processes)
+
+            # 执行并行半径查询
+            neighbor_lists = self._parallel_query.query_ball_point_parallel(res_coords, radius)
+            counts = np.array([len(neighbors) for neighbors in neighbor_lists], dtype=int)
 
         return counts
 
@@ -127,12 +143,14 @@ class PerAtomDistanceCalculator(DistanceCalculator):
     计算每个非氢原子到最近水分子的距离
     """
 
-    def __init__(self, chunk_size: int = 5000):
+    def __init__(self, chunk_size: int = 5000, num_processes: int = 1):
         """
         Args:
             chunk_size: 分块大小
+            num_processes: 并行进程数（使用线程），1表示串行
         """
         self.chunk_size = chunk_size
+        self.num_processes = num_processes
 
     def compute_min_distances(
         self,
@@ -145,7 +163,7 @@ class PerAtomDistanceCalculator(DistanceCalculator):
         原子级距离在collect_peratom_dists中单独处理
         """
         # 使用质心距离作为基础
-        calculator = ChunkedDistanceCalculator(self.chunk_size)
+        calculator = ChunkedDistanceCalculator(self.chunk_size, self.num_processes)
         return calculator.compute_min_distances(residues, waters)
 
     def count_waters_within_radius(
@@ -155,7 +173,7 @@ class PerAtomDistanceCalculator(DistanceCalculator):
         radius: float,
     ) -> np.ndarray:
         """统计半径内的水分子数量"""
-        calculator = ChunkedDistanceCalculator(self.chunk_size)
+        calculator = ChunkedDistanceCalculator(self.chunk_size, self.num_processes)
         return calculator.count_waters_within_radius(residues, waters, radius)
 
     def collect_atom_distances(
@@ -176,20 +194,27 @@ class PerAtomDistanceCalculator(DistanceCalculator):
             dict: 键为 (chain, resnum)，值为原子距离数组
         """
         from scipy.spatial import KDTree
+        import concurrent.futures
 
         if waters.is_empty():
             water_tree = None
         else:
             water_tree = KDTree(waters.coords)
 
-        dists_map = {}
-        for r in residues:
+        # 准备并行查询器（如果需要）
+        parallel_query = None
+        if self.num_processes > 1 and water_tree is not None:
+            from .parallel import ParallelKDTreeQuery
+            parallel_query = ParallelKDTreeQuery(water_tree, self.num_processes)
+
+        # 处理单个残基的函数
+        def process_residue(r: ResidueInfo):
+            """处理单个残基的原子距离计算"""
             try:
                 residue = structure[0][r.chain][(" ", r.resnum, " ")]
             except Exception:
                 key = (r.chain, str(r.resnum))
-                dists_map[key] = np.array([np.inf])
-                continue
+                return key, np.array([np.inf])
 
             # 收集非氢原子坐标
             atom_coords = []
@@ -202,19 +227,52 @@ class PerAtomDistanceCalculator(DistanceCalculator):
 
             if not atom_coords:
                 key = (r.chain, str(r.resnum))
-                dists_map[key] = np.array([np.inf])
-                continue
+                return key, np.array([np.inf])
 
             atom_coords = np.array(atom_coords, dtype=float)
 
             # 计算距离
             if water_tree is not None:
-                dists, _ = water_tree.query(atom_coords, k=1)
-                dists = np.array(dists, dtype=float)
+                if parallel_query is not None:
+                    # 使用并行查询（针对整个原子坐标数组）
+                    dists, _ = parallel_query.query_nearest_parallel(atom_coords, k=1)
+                    dists = np.array(dists.flatten(), dtype=float)
+                else:
+                    # 串行查询
+                    dists, _ = water_tree.query(atom_coords, k=1)
+                    dists = np.array(dists, dtype=float)
             else:
                 dists = np.full(len(atom_coords), np.inf)
 
             key = (r.chain, str(r.resnum))
-            dists_map[key] = dists
+            return key, dists
+
+        # 根据并行进程数选择执行方式
+        dists_map = {}
+        if self.num_processes <= 1:
+            # 串行处理
+            for r in residues:
+                key, dists = process_residue(r)
+                dists_map[key] = dists
+        else:
+            # 并行处理
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=self.num_processes,
+                thread_name_prefix="atom_dist_worker"
+            ) as executor:
+                # 提交所有任务
+                future_to_residue = {
+                    executor.submit(process_residue, r): r
+                    for r in residues
+                }
+
+                # 收集结果
+                for future in concurrent.futures.as_completed(future_to_residue):
+                    try:
+                        key, dists = future.result()
+                        dists_map[key] = dists
+                    except Exception as e:
+                        r = future_to_residue[future]
+                        raise RuntimeError(f"处理残基 {r.chain}:{r.resnum} 失败: {e}")
 
         return dists_map

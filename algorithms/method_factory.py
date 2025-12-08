@@ -2,11 +2,11 @@
 方法工厂
 """
 
-from typing import Union
+from typing import Union, Optional
 
-from ..core.data_models import MethodType, AnalysisConfig
-from .centroid_method import CentroidMethod
-from .peratom_method import PerAtomMethod
+from core.data_models import MethodType, AnalysisConfig
+from algorithms.centroid_method import CentroidMethod
+from algorithms.peratom_method import PerAtomMethod
 
 
 class MethodFactory:
@@ -15,7 +15,7 @@ class MethodFactory:
     @staticmethod
     def create_method(
         method_type: Union[MethodType, str],
-        config: AnalysisConfig = None,
+        config: Optional[AnalysisConfig] = None,
     ) -> Union[CentroidMethod, PerAtomMethod]:
         """
         创建分析方法
@@ -30,6 +30,10 @@ class MethodFactory:
         # 处理字符串输入
         if isinstance(method_type, str):
             method_type = MethodType(method_type.lower())
+
+        # 确保提供了 config，因为底层构造函数需要 AnalysisConfig
+        if config is None:
+            raise ValueError("分析配置 config 不能为空。")
 
         if method_type == MethodType.CENTROID:
             return CentroidMethod(config)

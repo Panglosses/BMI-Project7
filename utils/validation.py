@@ -5,7 +5,7 @@
 from pathlib import Path
 from typing import Union
 
-from ..core.data_models import AnalysisConfig
+from core.data_models import AnalysisConfig
 
 
 def validate_pdb_file(filepath: Union[str, Path]) -> bool:

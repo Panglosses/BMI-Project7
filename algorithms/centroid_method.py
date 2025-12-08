@@ -2,31 +2,31 @@
 质心法实现
 """
 
-from typing import List
+from typing import List, Optional
 import numpy as np
 
-from ..core.data_models import (
+from core.data_models import (
     ResidueInfo,
     WaterInfo,
     AccessibilityResult,
     AnalysisConfig,
-    MethodType
+    MethodType,
 )
-from ..core.distance_calculator import ChunkedDistanceCalculator
-from ..core.accessibility_evaluator import CentroidEvaluator
+from core.distance_calculator import ChunkedDistanceCalculator
+from core.accessibility_evaluator import CentroidEvaluator
 
 
 class CentroidMethod:
     """质心法"""
 
-    def __init__(self, config: AnalysisConfig = None):
+    def __init__(self, config: Optional[AnalysisConfig] = None):
         """
         Args:
             config: 分析配置
         """
         self.config = config or AnalysisConfig()
         self.distance_calculator = ChunkedDistanceCalculator(
-            chunk_size=self.config.chunk_size
+            chunk_size=self.config.chunk_size, num_processes=self.config.num_processes
         )
         self.evaluator = CentroidEvaluator()
 
@@ -34,7 +34,7 @@ class CentroidMethod:
         self,
         residues: List[ResidueInfo],
         waters: WaterInfo,
-        structure = None,  # 保持接口一致，但质心法不需要structure
+        structure=None,  # 保持接口一致，但质心法不需要structure
     ) -> List[AccessibilityResult]:
         """
         执行质心法分析
@@ -52,9 +52,7 @@ class CentroidMethod:
             return []
 
         # 计算最小距离
-        min_distances = self.distance_calculator.compute_min_distances(
-            residues, waters
-        )
+        min_distances = self.distance_calculator.compute_min_distances(residues, waters)
 
         # 统计半径内的水分子数量
         water_counts = self.distance_calculator.count_waters_within_radius(

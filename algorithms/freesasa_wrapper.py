@@ -2,10 +2,10 @@
 FreeSASA包装器
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import freesasa
 
-from ..core.data_models import AnalysisConfig
+from core.data_models import AnalysisConfig
 
 
 class FreeSASAWrapper:
@@ -14,7 +14,7 @@ class FreeSASAWrapper:
     # 水分子名称集合（与PDB加载器保持一致）
     WATER_NAMES = {"HOH", "WAT", "SOL", "H2O", "TIP3", "TIP3P", "T3P", "W"}
 
-    def __init__(self, config: AnalysisConfig = None):
+    def __init__(self, config: Optional[AnalysisConfig] = None):
         """
         Args:
             config: 分析配置
@@ -53,13 +53,15 @@ class FreeSASAWrapper:
                     sasa = area_obj.total
                     accessible = "Yes" if sasa >= self.config.sasa_threshold else "No"
 
-                    output.append({
-                        "chain": chain,
-                        "resnum": str(resnum),
-                        "resname": resname,
-                        "SASA": sasa,
-                        "Accessible": accessible,
-                    })
+                    output.append(
+                        {
+                            "chain": chain,
+                            "resnum": str(resnum),
+                            "resname": resname,
+                            "SASA": sasa,
+                            "Accessible": accessible,
+                        }
+                    )
 
             return output
 
@@ -67,7 +69,9 @@ class FreeSASAWrapper:
             raise RuntimeError(f"FreeSASA计算失败: {e}")
 
     @staticmethod
-    def compute_simple(pdb_file: str, water_names: set, access_threshold: float) -> List[Dict[str, Any]]:
+    def compute_simple(
+        pdb_file: str, water_names: set, access_threshold: float
+    ) -> List[Dict[str, Any]]:
         """
         简单接口，保持与原compute_residue_sasa.py兼容
 

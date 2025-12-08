@@ -3,15 +3,10 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Optional
 import numpy as np
 
-from .data_models import (
-    ResidueInfo,
-    AccessibilityResult,
-    AnalysisConfig,
-    MethodType
-)
+from .data_models import ResidueInfo, AccessibilityResult, AnalysisConfig, MethodType
 
 
 class AccessibilityEvaluator(ABC):
@@ -138,8 +133,8 @@ class PerAtomEvaluator(AccessibilityEvaluator):
 
         # 判断是否为小残基
         is_small = (
-            residue.resname.upper() in config.small_residues or
-            n_atoms <= config.small_residue_size
+            residue.resname.upper() in config.small_residues
+            or n_atoms <= config.small_residue_size
         )
 
         if is_small:
@@ -148,10 +143,7 @@ class PerAtomEvaluator(AccessibilityEvaluator):
         else:
             # 普通残基：需同时满足比例和最小命中数
             fraction = float(n_hits) / float(n_atoms)
-            return (
-                fraction >= config.fraction_threshold and
-                n_hits >= config.min_hits
-            )
+            return fraction >= config.fraction_threshold and n_hits >= config.min_hits
 
 
 class EvaluatorFactory:
@@ -160,7 +152,7 @@ class EvaluatorFactory:
     @staticmethod
     def create_evaluator(
         method: MethodType,
-        atom_distances: Dict[tuple, np.ndarray] = None,
+        atom_distances: Optional[Dict[tuple, np.ndarray]] = None,
     ) -> AccessibilityEvaluator:
         """
         创建评估器

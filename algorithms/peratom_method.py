@@ -2,31 +2,31 @@
 原子级方法实现
 """
 
-from typing import List, Dict
+from typing import List, Optional
 import numpy as np
 
-from ..core.data_models import (
+from core.data_models import (
     ResidueInfo,
     WaterInfo,
     AccessibilityResult,
     AnalysisConfig,
-    MethodType
+    MethodType,
 )
-from ..core.distance_calculator import PerAtomDistanceCalculator
-from ..core.accessibility_evaluator import PerAtomEvaluator
+from core.distance_calculator import PerAtomDistanceCalculator
+from core.accessibility_evaluator import PerAtomEvaluator
 
 
 class PerAtomMethod:
     """原子级方法"""
 
-    def __init__(self, config: AnalysisConfig = None):
+    def __init__(self, config: Optional[AnalysisConfig] = None):
         """
         Args:
             config: 分析配置
         """
         self.config = config or AnalysisConfig()
         self.distance_calculator = PerAtomDistanceCalculator(
-            chunk_size=self.config.chunk_size
+            chunk_size=self.config.chunk_size, num_processes=self.config.num_processes
         )
         self.evaluator = PerAtomEvaluator()
 
@@ -51,9 +51,7 @@ class PerAtomMethod:
             return []
 
         # 计算质心距离（用于快速筛选）
-        min_distances = self.distance_calculator.compute_min_distances(
-            residues, waters
-        )
+        min_distances = self.distance_calculator.compute_min_distances(residues, waters)
 
         # 统计半径内的水分子数量
         water_counts = self.distance_calculator.count_waters_within_radius(
