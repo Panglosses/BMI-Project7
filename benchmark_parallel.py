@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 并行化性能对比脚本
 
@@ -280,7 +279,7 @@ def main():
     parser.add_argument(
         "--wet-pdb",
         default="./pdb/SUMO1_water.pdb",
-        help="含水PDB文件路径 (默认: ./pdb/SUMO1_water.pdb)",
+        help="含水PDB文件路径 (例: ./pdb/SUMO1_water.pdb)",
     )
     parser.add_argument(
         "--dry-pdb",
