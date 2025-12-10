@@ -1,7 +1,4 @@
-"""
-基本使用示例
-展示如何使用模块化的溶剂可及性分析工具包
-"""
+# 基本使用示例
 
 import sys
 from pathlib import Path

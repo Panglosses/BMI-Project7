@@ -1,13 +1,6 @@
-#!/bin/bash
-# Setup script for Bioinformatics Project - Solvent Accessibility Analysis Toolkit
-
 set -e  # Exit on error
 
-echo "========================================"
-echo "Solvent Accessibility Analysis Toolkit"
-echo "Setup Script"
-echo "========================================"
-echo ""
+echo "Setting up Solvent Accessibility Analysis Toolkit"
 
 # Check Python version
 REQUIRED_PYTHON="3.14"
@@ -104,29 +97,13 @@ else
     exit 1
 fi
 
-echo ""
-echo "========================================"
 echo "Setup completed successfully!"
-echo "========================================"
-echo ""
-echo "To use the project:"
-echo ""
-echo "1. Activate virtual environment:"
+
 if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "   source $VENV_DIR/bin/activate"
+    echo "source $VENV_DIR/bin/activate"
 elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-    echo "   source $VENV_DIR/Scripts/activate"
+    echo "source $VENV_DIR/Scripts/activate"
 else
-    echo "   Linux/macOS: source $VENV_DIR/bin/activate"
-    echo "   Windows PowerShell: .\\$VENV_DIR\\Scripts\\Activate.ps1"
-    echo "   Windows CMD: $VENV_DIR\\Scripts\\activate.bat"
+    echo "Linux/macOS: source $VENV_DIR/bin/activate"
+    echo "Windows PowerShell: .\\$VENV_DIR\\Scripts\\Activate.ps1"
 fi
-echo ""
-echo "2. Run the analysis:"
-echo "   python -m solvent_analysis --help"
-echo ""
-echo "3. Deactivate virtual environment when done:"
-echo "   deactivate"
-echo ""
-echo "For detailed usage, see README.md"
-echo "========================================"

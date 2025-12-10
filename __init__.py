@@ -1,9 +1,5 @@
-"""
-溶剂可及性分析工具包
-"""
-
 __version__ = "1.0.0"
-__author__ = "Bioinformatics Project"
+__author__ = "BMI-Project7"
 
 from .core.data_models import (
     ResidueInfo,

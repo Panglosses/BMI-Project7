@@ -1,4 +1,6 @@
 # 批量溶剂化小工具 *.pdb → solvated_*.pdb
+# GROMACS只能在linux系统下使用
+# 很多蛋白质不知为何跑不出来
 # 使用方法：在安装好GROMACS的Linux系统的BASE_DIR处创建一个空项目，将改该脚本放进该项目目录中，并将所有待处理的pdb文件放在和它一起
 # 记得先确认gmx指令是否已经可用
 # 修复：移除危险的 grep 清理，依赖 GROMACS 自动忽略 HETATM
@@ -84,7 +86,7 @@ done
 log "✨ 批量任务全部完成！"
 
 # 复制 logs 到 Windows Downloads
-windows_logs="/mnt/c/Users/sha1r/Downloads/logs"
+windows_logs="/mnt/c/Users/sha1r/Downloads/logs" # 我嫌麻烦把路径硬编码了
 if [[ -d "$windows_logs" ]]; then
     rm -rf "$windows_logs"
 fi

@@ -16,21 +16,17 @@
 
 ### 安装依赖
 
-```bash
-# 给脚本添加执行权限（Linux/macOS）
-chmod +x setup.sh
+1. 安装[Python Install Manager](https://www.python.org/downloads/)
 
-# 运行安装脚本
-./setup.sh
+2. 安装[Visual Studio 2026 Installer](https://visualstudio.microsoft.com/downloads/)，并勾选桌面C++开发环境
 
-# 该脚本可自动创建虚拟环境bmi并安装所有依赖
-```
+3. 运行[setup.sh](./setup.sh)自动安装虚拟环境（Windows系统下推荐用Git Bash运行）
+
+4. 激活Python虚拟环境`./bmi/`
 
 ### 添加数据
 
-将待处理的pdb文件（如`SUMO1_water.pdb`）放进`./pdb/`内
-
-<!-- ### 命令行使用
+推荐将待处理的pdb文件（如`SUMO1_water.pdb`）放进`./pdb/`内
 
 ```bash
 # 原子级方法（默认）
@@ -57,13 +53,13 @@ results = method.analyze(residues, waters, structure)
 
 accessible = sum(1 for r in results if r.accessible)
 print(f"可及残基: {accessible}/{len(results)}")
-``` -->
+```
 
 ## 详细教程
 
 完整代码讲解、算法原理、性能优化和并行化设计请查看：
 
-**[tutorial.ipynb](tutorial.ipynb)** - Jupyter notebook详细教程，包含：
+**[tutorial.ipynb](tutorial.ipynb)** - Jupyter notebook详细使用示例，包含：
 - 逐步代码解析与算法对比
 - 性能基准测试与并行化分析
 - 交互式运行和实验
@@ -109,3 +105,5 @@ python benchmark_parallel.py --processes 1 2 4
 1. 实现`DistanceCalculator`抽象基类添加新距离算法
 2. 实现`AccessibilityEvaluator`抽象基类添加新评估规则
 3. 在`MethodFactory`中注册新方法
+
+## Reference

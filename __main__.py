@@ -1,6 +1,4 @@
-"""
-主入口点（用于 python -m solvent_analysis）
-"""
+# python -m solvent_analysis
 
 from .cli.main import main
 
