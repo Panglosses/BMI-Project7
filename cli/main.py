@@ -1,3 +1,24 @@
+""" Overall command with variable parameters
+python cli/main.py \
+  --wet-pdb "path/to/wet_structure.pdb" \          # Hydrated PDB file (with water molecules)
+  --dry-pdb "path/to/dry_structure.pdb" \          # Raw PDB file (without water, for FreeSASA)
+  --method "peratom" \                             # Analysis method: "centroid" or "peratom"
+  --threshold 3.5 \                                # Accessibility threshold (Å): distance < threshold = accessible
+  --margin 2.0 \                                   # Centroid filter margin (Å): centroid distance > (threshold + margin) = filtered out
+  --R 5.0 \                                        # Radius for water counting (Å): count waters within the radius
+  --fraction-threshold 0.20 \                      # Fraction threshold for peratom method (0-1): higher than this ratio of atoms within threshold is considered accessible
+  --min-hits 1 \                                   # Minimum atom hits for peratom method: at least this count of atoms within threshold is considered accessible
+  --small-residue-size 5 \                         # Small residue threshold: residues with ≤ this count atoms apply different rules
+  --chunk 5000 \                                   # Chunk size for distance calculations: larger ---> more memory and faster
+  --nproc 4 \                                      # Number of parallel processes: use more cores for faster computation
+  --output-dir "./results" \                       # Output directory for results files
+  --verbose \                                      # Show detailed progress and statistics
+  --no-comparison                                  # Skip FreeSASA comparison (dry-pdb still required but not used)
+"""
+
+
+
+
 """
 主命令行接口
 """
