@@ -1,5 +1,5 @@
 """
-方法工厂
+Method factory
 """
 
 from core.data_models import MethodType, AnalysisConfig
@@ -8,7 +8,7 @@ from algorithms.peratom_method import PerAtomMethod
 
 
 class MethodFactory:
-    """方法工厂"""
+    """Method factory"""
 
     @staticmethod
     def create_method(
@@ -16,22 +16,22 @@ class MethodFactory:
         config: AnalysisConfig | None = None,
     ) -> CentroidMethod | PerAtomMethod:
         """
-        创建分析方法
+        Create analysis method
 
         Args:
-            method_type: 方法类型（枚举或字符串）
-            config: 分析配置
+            method_type: Method type (enum or string)
+            config: Analysis configuration
 
         Returns:
-            CentroidMethod | PerAtomMethod: 分析方法实例
+            CentroidMethod | PerAtomMethod: Analysis method instance
         """
-        # 处理字符串输入
+        # Handle string input
         if isinstance(method_type, str):
             method_type = MethodType(method_type.lower())
 
-        # 确保提供了 config，因为底层构造函数需要 AnalysisConfig
+        # Ensure config is provided, because underlying constructor requires AnalysisConfig
         if config is None:
-            raise ValueError("分析配置 config 不能为空。")
+            raise ValueError("Analysis configuration config cannot be empty.")
 
         if method_type == MethodType.CENTROID:
             return CentroidMethod(config)
@@ -42,5 +42,5 @@ class MethodFactory:
 
     @staticmethod
     def get_available_methods() -> list:
-        """获取可用方法列表"""
+        """Get available method list"""
         return [method.value for method in MethodType]

@@ -1,35 +1,35 @@
-# 溶剂可及性分析工具包
+# Solvent Accessibility Analysis Toolkit
 
-基于水分子接近度的蛋白质残基溶剂可及性高效计算工具。
+High-efficiency calculation tool for protein residue solvent accessibility based on water molecule proximity.
 
-## 项目简介
+## Project Introduction
 
-蛋白质折叠由疏水效应驱动，促使疏水残基埋藏于蛋白核心，亲水残基暴露于水环境。传统方法基于几何表面积计算（如FreeSASA），本方法直接评估残基与显式水分子的接近程度，提供更物理真实的溶剂可及性度量。  
+Protein folding is driven by the hydrophobic effect, which buries hydrophobic residues in the protein core and exposes hydrophilic residues to the aqueous environment. Traditional methods based on geometric surface area calculation (e.g., FreeSASA), this method directly evaluates the proximity of residues to explicit water molecules, providing a more physically realistic solvent accessibility measure.
 
-**核心特性**：
-- 双算法支持：质心法（残基质心距离）和原子级方法（原子接触比例）
-- 高性能计算：分块计算，KDTree空间索引，向量化操作
-- 模块化架构：策略模式设计，易于扩展新算法
-- 并行化支持：基于Python 3.14自由线程特性的可拔插并行组件
+**Core Features**:
+- Dual-algorithm support: centroid method (residue centroid distance) and per-atom method (atom contact ratio)
+- High-performance computing: chunked computation, KDTree spatial indexing, vectorized operations
+- Modular architecture: strategy pattern design, easy to extend with new algorithms
+- Parallelization support: pluggable parallel components based on Python 3.14 free-threading feature
 
-## 快速开始
+## Quick Start
 
-### 安装依赖
+### Installing Dependencies
 
-1. 安装[Python Install Manager](https://www.python.org/downloads/)
+1. Install [Python Install Manager](https://www.python.org/downloads/)
 
-2. 安装[Visual Studio 2026 Installer](https://visualstudio.microsoft.com/downloads/)，并勾选桌面C++开发环境
+2. Install [Visual Studio 2026 Installer](https://visualstudio.microsoft.com/downloads/) and check the desktop C++ development environment
 
-3. 运行[setup.sh](./setup.sh)自动安装虚拟环境（Windows系统下推荐用Git Bash运行）
+3. Run [setup.sh](./setup.sh) to automatically install the virtual environment (recommended to use Git Bash on Windows)
 
-4. 激活Python虚拟环境`./bmi/`
+4. Activate the Python virtual environment `./bmi/`
 
-### 添加数据
+### Adding Data
 
-推荐将待处理的pdb文件（如`SUMO1_water.pdb`）放进`./pdb/`内
+It is recommended to place the PDB files to be processed (e.g., `SUMO1_water.pdb`) inside `./pdb/`
 
 ```bash
-# 原子级方法（默认）
+# Per-atom method (default)
 python -m solvent_analysis \
   --wet-pdb ./pdb/SUMO1_water.pdb \
   --dry-pdb ./pdb/SUMO1.pdb \
@@ -52,58 +52,58 @@ method = MethodFactory.create_method(MethodType.PERATOM, config)
 results = method.analyze(residues, waters, structure)
 
 accessible = sum(1 for r in results if r.accessible)
-print(f"可及残基: {accessible}/{len(results)}")
+print(f"Accessible residues: {accessible}/{len(results)}")
 ```
 
-## 详细教程
+## Detailed Tutorial
 
-完整代码讲解、算法原理、性能优化和并行化设计请查看：
+For complete code explanation, algorithm principles, performance optimization, and parallelization design, please see:
 
-**[tutorial.ipynb](tutorial.ipynb)** - Jupyter notebook详细使用示例，包含：
-- 逐步代码解析与算法对比
-- 性能基准测试与并行化分析
-- 交互式运行和实验
+**[tutorial.ipynb](tutorial.ipynb)** - Jupyter notebook detailed usage example, includes:
+- Step-by-step code analysis and algorithm comparison
+- Performance benchmark testing and parallelization analysis
+- Interactive running and experimentation
 
-## 项目结构
+## Project Structure
 
 ```
-solvent_analysis/          # 主包
-├── core/                  # 核心接口与数据模型
-├── io_utils/              # 输入输出模块
-├── algorithms/            # 算法实现
-├── utils/                 # 工具模块
-└── cli/                   # 命令行接口
+solvent_analysis/          # Main package
+├── core/                  # Core interfaces and data models
+├── io_utils/              # Input/output modules
+├── algorithms/            # Algorithm implementations
+├── utils/                 # Utility modules
+└── cli/                   # Command line interface
 ```
 
-**核心模块**：
-- `core/data_models.py` - 数据类定义（ResidueInfo, WaterInfo等）
-- `core/distance_calculator.py` - 距离计算抽象接口
-- `algorithms/centroid_method.py` - 质心法实现
-- `algorithms/peratom_method.py` - 原子级方法实现
-- `io_utils/pdb_loader.py` - PDB文件加载（BioPython集成）
+**Core Modules**:
+- `core/data_models.py` - Data class definitions (ResidueInfo, WaterInfo, etc.)
+- `core/distance_calculator.py` - Distance calculation abstract interface
+- `algorithms/centroid_method.py` - Centroid method implementation
+- `algorithms/peratom_method.py` - Per-atom method implementation
+- `io_utils/pdb_loader.py` - PDB file loading (BioPython integration)
 
-## 测试与验证
+## Testing and Validation
 
 ```bash
-# 运行单元测试
+# Run unit tests
 python test_refactored.py
 
-# 性能基准测试
+# Performance benchmark testing
 python benchmark_parallel.py --processes 1 2 4
 ```
 
-## 性能优化
+## Performance Optimization
 
-- **分块计算**：控制内存峰值（`chunk_size`参数）
-- **空间索引**：KDTree加速最近邻搜索
-- **并行计算**：配置`num_processes`参数利用多核
-- **向量化操作**：NumPy广播优化距离计算
+- **Chunked computation**: Controls memory peak (`chunk_size` parameter)
+- **Spatial indexing**: KDTree accelerates nearest neighbor search
+- **Parallel computation**: Configure `num_processes` parameter to utilize multiple cores
+- **Vectorized operations**: NumPy broadcasting optimizes distance calculations
 
-## 扩展开发
+## Extension Development
 
-项目采用策略模式和工厂模式设计，支持轻松扩展：
-1. 实现`DistanceCalculator`抽象基类添加新距离算法
-2. 实现`AccessibilityEvaluator`抽象基类添加新评估规则
-3. 在`MethodFactory`中注册新方法
+The project uses strategy pattern and factory pattern design, supporting easy extension:
+1. Implement `DistanceCalculator` abstract base class to add new distance algorithms
+2. Implement `AccessibilityEvaluator` abstract base class to add new evaluation rules
+3. Register new methods in `MethodFactory`
 
 ## Reference

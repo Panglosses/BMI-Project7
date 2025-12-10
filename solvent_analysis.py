@@ -3,12 +3,12 @@
 import sys
 import os
 
-# 将当前目录添加到路径，以便导入子模块
+# Add the current directory to the path so that submodules can be imported.
 current_dir = os.path.dirname(__file__)
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-# 导入并重新导出核心数据模型
+# Import and re-export the core data model.
 try:
     from core.data_models import (
         ResidueInfo,
@@ -18,7 +18,7 @@ try:
         MethodType,
     )
 
-    # 使这些类在模块级别可用
+    # Make these classes available at the module level.
     __all__ = [
         "ResidueInfo",
         "WaterInfo",
@@ -28,5 +28,5 @@ try:
     ]
 
 except ImportError as e:
-    print(f"警告：导入核心数据模型失败: {e}")
+    print(f"Warning: Failed to import the core data model: {e}")
     raise

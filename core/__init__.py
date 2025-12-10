@@ -1,5 +1,5 @@
 """
-核心数据模型和接口定义
+Core data models and interface definitions
 """
 
 from .data_models import (

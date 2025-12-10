@@ -1,7 +1,3 @@
-"""
-PDB文件加载器
-"""
-
 import numpy as np
 from Bio.PDB import PDBParser  # type: ignore
 
@@ -9,33 +5,25 @@ from core.data_models import ResidueInfo, WaterInfo
 
 
 class PDBLoader:
-    """PDB文件加载器"""
-
-    # 水分子名称集合
     WATER_NAMES = {"HOH", "WAT", "SOL", "H2O", "TIP3", "TIP3P", "T3P", "W"}
-
-    # 水分子氧原子名称
     WATER_OXYGEN_NAMES = {"O", "OW", "OH", "OW1", "O1"}
 
     def __init__(self, quiet: bool = False):
         """
         Args:
-            quiet: 是否静默模式（抑制BioPython警告）
+            quiet: suspend BioPython warning
         """
         self.quiet = quiet
 
     def load(self, pdb_path: str) -> tuple[list[ResidueInfo], WaterInfo, object | None]:
         """
-        加载PDB文件
-
-        Args:
-            pdb_path: PDB文件路径
+        load pdb file
 
         Returns:
             tuple[list[ResidueInfo], WaterInfo, object | None]:
-                - 残基列表
-                - 水分子信息
-                - BioPython结构对象（可能为None）
+                - Residue list
+                - Water molecule information
+                - BioPython structure object (may be None)
         """
         parser = PDBParser(QUIET=self.quiet)
         structure = parser.get_structure("prot", pdb_path)
@@ -53,16 +41,13 @@ class PDBLoader:
                     resname = residue.get_resname().upper().strip()
                     het_flag = residue.id[0]
 
-                    # 水分子检测
                     if resname in self.WATER_NAMES:
                         self._extract_water_oxygen(residue, water_coords, water_names)
                         continue
 
-                    # 跳过异质残基（配体等）
                     if het_flag.strip():
                         continue
 
-                    # 提取残基信息
                     residue_info = self._extract_residue_info(chain, residue)
                     if residue_info is not None:
                         residues.append(residue_info)
@@ -80,7 +65,6 @@ class PDBLoader:
         water_coords: list,
         water_names: list,
     ) -> None:
-        """提取水分子氧原子坐标"""
         for atom in residue:
             element = getattr(atom, "element", "").upper()
             atom_name = atom.get_name().strip().upper()
@@ -90,8 +74,7 @@ class PDBLoader:
                 water_names.append(residue.get_resname())
 
     def _extract_residue_info(self, chain, residue) -> ResidueInfo | None:
-        """提取残基信息"""
-        # 收集非氢原子坐标
+        # Collecting non-H atom location
         atom_coords = []
         for atom in residue:
             element = getattr(atom, "element", "").upper()
@@ -105,7 +88,6 @@ class PDBLoader:
         if not atom_coords:
             return None
 
-        # 计算质心
         centroid = np.mean(np.array(atom_coords, dtype=float), axis=0)
 
         return ResidueInfo(
@@ -116,22 +98,22 @@ class PDBLoader:
         )
 
 
-# 兼容性函数
+# Compatibility
 def load_pdb(
     pdb_path: str, quiet: bool = False
 ) -> tuple[list[ResidueInfo], WaterInfo, object | None]:
     """
-    兼容性函数，保持与原load_pdb.py相同的接口
+    Adding compatibility, maintaining the same interface as the original `load_pdb.py`
 
     Args:
-        pdb_path: PDB文件路径
-        quiet: 是否静默模式
+        pdb_path: Path to the PDB file
+        quiet: Whether to operate in silent mode
 
     Returns:
         tuple[list[ResidueInfo], WaterInfo, object | None]:
-            - 残基列表
-            - 水分子信息
-            - BioPython结构对象
+            - List of residues
+            - Information about water molecules
+            - BioPython structure object
     """
     loader = PDBLoader(quiet=quiet)
     return loader.load(pdb_path)

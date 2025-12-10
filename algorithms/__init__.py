@@ -1,5 +1,5 @@
 """
-算法模块
+Algorithm module
 """
 
 from algorithms.centroid_method import CentroidMethod

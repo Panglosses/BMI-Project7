@@ -5,22 +5,12 @@ from core.data_models import AccessibilityResult
 
 
 class CSVWriter:
-    """CSV文件写入器"""
-
     @staticmethod
     def write_results(
         filepath: str,
         results: list[AccessibilityResult],
         include_header: bool = True,
     ) -> None:
-        """
-        写入可及性分析结果
-
-        Args:
-            filepath: 输出文件路径
-            results: 可及性结果列表
-            include_header: 是否包含表头
-        """
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
         with open(filepath, "w", newline="", encoding="utf-8") as f:
@@ -54,14 +44,6 @@ class CSVWriter:
         comparison_data: list[list[object]],
         header: list[str],
     ) -> None:
-        """
-        写入对比结果
-
-        Args:
-            filepath: 输出文件路径
-            comparison_data: 对比数据（每行一个列表）
-            header: 表头
-        """
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
         with open(filepath, "w", newline="", encoding="utf-8") as f:
@@ -75,14 +57,6 @@ class CSVWriter:
         data: list[list[object]],
         header: list[str] | None = None,
     ) -> None:
-        """
-        通用CSV写入
-
-        Args:
-            filepath: 输出文件路径
-            data: 数据行列表
-            header: 可选的表头
-        """
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
         with open(filepath, "w", newline="", encoding="utf-8") as f:

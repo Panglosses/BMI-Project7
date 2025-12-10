@@ -1,5 +1,5 @@
 """
-原子级方法实现
+Per-atom method implementation
 """
 
 import numpy as np
@@ -16,12 +16,12 @@ from core.accessibility_evaluator import PerAtomEvaluator
 
 
 class PerAtomMethod:
-    """原子级方法"""
+    """Per-atom method"""
 
     def __init__(self, config: AnalysisConfig | None = None):
         """
         Args:
-            config: 分析配置
+            config: Analysis configuration
         """
         self.config = config or AnalysisConfig()
         self.distance_calculator = PerAtomDistanceCalculator(
@@ -36,36 +36,36 @@ class PerAtomMethod:
         structure,
     ) -> list[AccessibilityResult]:
         """
-        执行原子级方法分析
+        Perform per-atom method analysis
 
         Args:
-            residues: 残基列表
-            waters: 水分子信息
-            structure: BioPython结构对象
+            residues: Residue list
+            waters: Water molecule information
+            structure: BioPython structure object
 
         Returns:
-            list[AccessibilityResult]: 可及性结果
+            list[AccessibilityResult]: Accessibility results
         """
         if not residues:
             return []
 
-        # 计算质心距离（用于快速筛选）
+        # Calculate centroid distances (for fast filtering)
         min_distances = self.distance_calculator.compute_min_distances(residues, waters)
 
-        # 统计半径内的水分子数量
+        # Count water molecules within radius
         water_counts = self.distance_calculator.count_waters_within_radius(
             residues, waters, self.config.radius
         )
 
-        # 收集原子距离
+        # Collect atom distances
         atom_distances = self.distance_calculator.collect_atom_distances(
             residues, waters, structure
         )
 
-        # 设置原子距离缓存
+        # Set atom distance cache
         self.evaluator.set_atom_distances(atom_distances)
 
-        # 评估可及性
+        # Evaluate accessibility
         results = self.evaluator.evaluate(
             residues, min_distances, water_counts, self.config
         )
@@ -73,18 +73,18 @@ class PerAtomMethod:
         return results
 
     def get_method_type(self) -> MethodType:
-        """获取方法类型"""
+        """Get method type"""
         return MethodType.PERATOM
 
     def get_atom_distances(self, residue: ResidueInfo) -> np.ndarray:
         """
-        获取指定残基的原子距离
+        Get atom distances for specified residue
 
         Args:
-            residue: 残基信息
+            residue: Residue information
 
         Returns:
-            np.ndarray: 原子距离数组
+            np.ndarray: Atom distance array
         """
         key = (residue.chain, str(residue.resnum))
         return self.evaluator._atom_distances_cache.get(key, np.array([np.inf]))

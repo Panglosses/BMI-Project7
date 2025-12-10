@@ -1,21 +1,14 @@
-"""
-结果格式化器
-"""
-
 from core.data_models import AccessibilityResult
 
 
 class ResultFormatter:
-    """结果格式化器"""
-
     @staticmethod
     def to_dict_list(results: list[AccessibilityResult]) -> list[dict[str, object]]:
-        """转换为字典列表"""
         return [result.to_dict() for result in results]
 
     @staticmethod
     def to_simple_table(results: list[AccessibilityResult]) -> list[list[object]]:
-        """转换为简单表格格式（用于CSV）"""
+        """Convert to a simple table format (for CSV)"""
         table = []
         for result in results:
             row = [
@@ -36,17 +29,17 @@ class ResultFormatter:
         match_ratio: float,
     ) -> list[list[object]]:
         """
-        创建对比表格
+        Create a comparison table
 
         Args:
-            custom_results: 自定义方法结果
-            sasa_results: FreeSASA结果（字典列表）
-            match_ratio: 匹配比例
+            custom_results: Results from the custom method
+            sasa_results: FreeSASA results (a list of dictionaries)
+            match_ratio: Matching ratio
 
         Returns:
-            list[list[object]]: 对比表格
+            list[list[object]]: Comparison table
         """
-        # 构建SASA结果映射
+        # Constructing the SASA result mapping
         sasa_map = {}
         for item in sasa_results:
             chain = str(item.get("chain", "")).strip() or "A"
@@ -54,7 +47,7 @@ class ResultFormatter:
             accessible = str(item.get("Accessible", "No"))
             sasa_map[(chain, resnum)] = accessible
 
-        # 构建对比表格
+        # Create a comparison table.
         comparison = []
         for result in custom_results:
             key = (result.residue.chain, str(result.residue.resnum))
@@ -76,7 +69,7 @@ class ResultFormatter:
                 ]
             )
 
-        # 添加空行和统计信息
+        # Add blank lines and statistics
         comparison.append(["", "", "", "", "", ""])
         comparison.append(["Match_Ratio", f"{match_ratio:.4f}"])
 
@@ -84,17 +77,16 @@ class ResultFormatter:
 
     @staticmethod
     def format_summary(results: list[AccessibilityResult]) -> str:
-        """格式化摘要信息"""
         total = len(results)
         accessible = sum(1 for r in results if r.accessible)
         ratio = accessible / total if total > 0 else 0.0
 
         summary = [
-            "=== 分析结果摘要 ===",
-            f"总残基数: {total}",
-            f"可及残基数: {accessible}",
-            f"可及比例: {ratio:.2%}",
-            f"使用方法: {results[0].method if results else 'N/A'}",
+            "=== Result Summary ===",
+            f"Total residues: {total}",
+            f"Accessible residues: {accessible}",
+            f"Accessible ratio: {ratio:.2%}",
+            f"Use case: {results[0].method if results else 'N/A'}",
         ]
 
         return "\n".join(summary)

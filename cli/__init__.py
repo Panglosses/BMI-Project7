@@ -1,5 +1,5 @@
 """
-命令行接口模块
+Command line interface module
 """
 
 from .main import main, parse_args

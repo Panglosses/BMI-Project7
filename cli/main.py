@@ -1,5 +1,5 @@
 """
-主命令行接口
+Main command line interface
 """
 
 import argparse
@@ -12,72 +12,72 @@ from algorithms import MethodFactory, FreeSASAWrapper
 
 
 def parse_args(args=None):
-    """解析命令行参数"""
+    """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="溶剂可及性分析工具 - 基于水分子接近度"
+        description="Solvent accessibility analysis tool - based on water molecule proximity"
     )
 
-    # 输入文件
+    # Input files
     parser.add_argument(
-        "--wet-pdb", required=True, help="水合PDB文件（用于自定义方法分析）"
+        "--wet-pdb", required=True, help="Hydrated PDB file (for custom method analysis)"
     )
     parser.add_argument(
-        "--dry-pdb", required=True, help="无水PDB文件（用于FreeSASA分析）"
+        "--dry-pdb", required=True, help="Dehydrated PDB file (for FreeSASA analysis)"
     )
 
-    # 方法选择
+    # Method selection
     parser.add_argument(
         "--method",
         choices=["centroid", "peratom"],
         default="peratom",
-        help="分析方法：centroid（质心法）或 peratom（原子级方法）",
+        help="Analysis method: centroid (centroid method) or peratom (per-atom method)",
     )
 
-    # 距离参数
+    # Distance parameters
     parser.add_argument(
-        "--threshold", type=float, default=3.5, help="可及性判断阈值（Å），默认：3.5"
+        "--threshold", type=float, default=3.5, help="Accessibility threshold (Å), default: 3.5"
     )
     parser.add_argument(
-        "--margin", type=float, default=2.0, help="质心法的额外裕度（Å），默认：2.0"
+        "--margin", type=float, default=2.0, help="Extra margin for centroid method (Å), default: 2.0"
     )
     parser.add_argument(
-        "--R", type=float, default=5.0, help="统计水分子的半径（Å），默认：5.0"
+        "--R", type=float, default=5.0, help="Radius for counting water molecules (Å), default: 5.0"
     )
 
-    # 原子级方法参数
+    # Per-atom method parameters
     parser.add_argument(
         "--fraction-threshold",
         type=float,
         default=0.20,
-        help="原子可及比例阈值（0-1），默认：0.20",
+        help="Atom accessibility fraction threshold (0-1), default: 0.20",
     )
     parser.add_argument(
-        "--min-hits", type=int, default=1, help="最小命中原子数，默认：1"
+        "--min-hits", type=int, default=1, help="Minimum hit atoms, default: 1"
     )
     parser.add_argument(
-        "--small-residue-size", type=int, default=5, help="小残基的原子数阈值，默认：5"
+        "--small-residue-size", type=int, default=5, help="Small residue atom count threshold, default: 5"
     )
 
-    # 计算参数
+    # Computation parameters
     parser.add_argument(
-        "--chunk", type=int, default=5000, help="分块计算大小，默认：5000"
+        "--chunk", type=int, default=5000, help="Chunk size for computation, default: 5000"
     )
-    parser.add_argument("--nproc", type=int, default=1, help="并行进程数，默认：1")
+    parser.add_argument("--nproc", type=int, default=1, help="Number of parallel processes, default: 1")
 
-    # 输出控制
+    # Output control
     parser.add_argument(
-        "--output-dir", default="./output", help="输出目录，默认：./output"
+        "--output-dir", default="./output", help="Output directory, default: ./output"
     )
-    parser.add_argument("--verbose", action="store_true", help="显示详细输出")
+    parser.add_argument("--verbose", action="store_true", help="Show verbose output")
     parser.add_argument(
-        "--no-comparison", action="store_true", help="不进行FreeSASA对比"
+        "--no-comparison", action="store_true", help="Skip FreeSASA comparison"
     )
 
     return parser.parse_args(args)
 
 
 def create_config(args) -> AnalysisConfig:
-    """从命令行参数创建配置"""
+    """Create configuration from command line arguments"""
     config = AnalysisConfig(
         threshold=args.threshold,
         margin=args.margin,
@@ -93,24 +93,24 @@ def create_config(args) -> AnalysisConfig:
 
 
 def run_custom_analysis(args, config: AnalysisConfig):
-    """运行自定义方法分析"""
+    """Run custom method analysis"""
     if args.verbose:
-        print(f"加载PDB文件: {args.wet_pdb}")
+        print(f"Loading PDB file: {args.wet_pdb}")
 
-    # 加载PDB
+    # Load PDB
     loader = PDBLoader(quiet=not args.verbose)
     residues, waters, structure = loader.load(args.wet_pdb)
 
     if args.verbose:
-        print(f"  残基数: {len(residues)}")
-        print(f"  水分子数: {waters.count}")
+        print(f"  Number of residues: {len(residues)}")
+        print(f"  Number of water molecules: {waters.count}")
 
-    # 创建分析方法
+    # Create analysis method
     method = MethodFactory.create_method(args.method, config)
 
-    # 执行分析
+    # Execute analysis
     if args.verbose:
-        print(f"执行{args.method}分析...")
+        print(f"Executing {args.method} analysis...")
 
     results = method.analyze(residues, waters, structure)
 
@@ -122,9 +122,9 @@ def run_custom_analysis(args, config: AnalysisConfig):
 
 
 def run_freesasa_analysis(args, config: AnalysisConfig):
-    """运行FreeSASA分析"""
+    """Run FreeSASA analysis"""
     if args.verbose:
-        print(f"运行FreeSASA分析: {args.dry_pdb}")
+        print(f"Running FreeSASA analysis: {args.dry_pdb}")
 
     wrapper = FreeSASAWrapper(config)
     sasa_results = wrapper.compute_residue_sasa(args.dry_pdb)
@@ -132,25 +132,25 @@ def run_freesasa_analysis(args, config: AnalysisConfig):
     if args.verbose:
         accessible = sum(1 for r in sasa_results if r["Accessible"] == "Yes")
         total = len(sasa_results)
-        print(f"  FreeSASA结果: {accessible}/{total} 可及")
+        print(f"  FreeSASA results: {accessible}/{total} accessible")
 
     return sasa_results
 
 
 def save_results(args, custom_results, sasa_results=None):
-    """保存结果文件"""
+    """Save result files"""
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 保存自定义方法结果
+    # Save custom method results
     prefix = Path(args.wet_pdb).stem
     custom_file = output_dir / f"{prefix}_{args.method}.csv"
     CSVWriter.write_results(str(custom_file), custom_results)
 
     if args.verbose:
-        print(f"保存自定义方法结果: {custom_file}")
+        print(f"Saving custom method results: {custom_file}")
 
-    # 保存FreeSASA结果
+    # Save FreeSASA results
     if sasa_results:
         sasa_file = output_dir / f"{Path(args.dry_pdb).stem}_freesasa.csv"
         CSVWriter.write_generic(
@@ -163,14 +163,14 @@ def save_results(args, custom_results, sasa_results=None):
         )
 
         if args.verbose:
-            print(f"保存FreeSASA结果: {sasa_file}")
+            print(f"Saving FreeSASA results: {sasa_file}")
 
     return custom_file
 
 
 def compare_results(custom_results, sasa_results):
-    """对比结果"""
-    # 计算匹配比例
+    """Compare results"""
+    # Calculate match ratio
     sasa_map = {}
     for item in sasa_results:
         chain = item.get("chain", "").strip() or "A"
@@ -193,25 +193,25 @@ def compare_results(custom_results, sasa_results):
 
 
 def main(args=None):
-    """主函数"""
+    """Main function"""
     if args is None:
         args = parse_args()
 
     try:
-        # 创建配置
+        # Create configuration
         config = create_config(args)
 
-        # 运行自定义方法分析
+        # Run custom method analysis
         residues, custom_results = run_custom_analysis(args, config)
 
-        # 运行FreeSASA分析
+        # Run FreeSASA analysis
         if not args.no_comparison:
             sasa_results = run_freesasa_analysis(args, config)
 
-            # 对比结果
+            # Compare results
             match_ratio = compare_results(custom_results, sasa_results)
 
-            # 保存对比结果
+            # Save comparison results
             comparison_file = Path(args.output_dir) / "comparison.csv"
             comparison_table = ResultFormatter.create_comparison_table(
                 custom_results, sasa_results, match_ratio
@@ -223,25 +223,25 @@ def main(args=None):
             )
 
             if args.verbose:
-                print(f"\n=== 对比完成 ===")
-                print(f"匹配比例: {match_ratio:.4f}")
-                print(f"对比结果: {comparison_file}")
+                print(f"\n=== Comparison completed ===")
+                print(f"Match ratio: {match_ratio:.4f}")
+                print(f"Comparison results: {comparison_file}")
 
-        # 保存结果
+        # Save results
         custom_file = save_results(
             args, custom_results, sasa_results if not args.no_comparison else None
         )
 
         if args.verbose:
-            print(f"\n分析完成！")
-            print(f"结果文件: {custom_file}")
+            print(f"\nAnalysis completed!")
+            print(f"Result file: {custom_file}")
             if not args.no_comparison:
-                print(f"对比文件: {Path(args.output_dir) / 'comparison.csv'}")
+                print(f"Comparison file: {Path(args.output_dir) / 'comparison.csv'}")
 
         return 0
 
     except Exception as e:
-        print(f"错误: {e}", file=sys.stderr)
+        print(f"Error: {e}", file=sys.stderr)
         if args.verbose:
             import traceback
 

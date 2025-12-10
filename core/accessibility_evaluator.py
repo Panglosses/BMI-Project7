@@ -1,5 +1,5 @@
 """
-可及性评估器
+Accessibility evaluator
 """
 
 from abc import ABC, abstractmethod
@@ -9,7 +9,7 @@ from .data_models import ResidueInfo, AccessibilityResult, AnalysisConfig, Metho
 
 
 class AccessibilityEvaluator(ABC):
-    """可及性评估器抽象基类"""
+    """Accessibility evaluator abstract base class"""
 
     @abstractmethod
     def evaluate(
@@ -20,22 +20,22 @@ class AccessibilityEvaluator(ABC):
         config: AnalysisConfig,
     ) -> list[AccessibilityResult]:
         """
-        评估残基的可及性
+        Evaluate residue accessibility
 
         Args:
-            residues: 残基列表
-            min_distances: 最小距离数组
-            water_counts: 水分子数量数组
-            config: 分析配置
+            residues: Residue list
+            min_distances: Minimum distance array
+            water_counts: Water molecule count array
+            config: Analysis configuration
 
         Returns:
-            list[AccessibilityResult]: 可及性结果列表
+            list[AccessibilityResult]: Accessibility result list
         """
         pass
 
 
 class CentroidEvaluator(AccessibilityEvaluator):
-    """质心法评估器"""
+    """Centroid method evaluator"""
 
     def evaluate(
         self,
@@ -44,7 +44,7 @@ class CentroidEvaluator(AccessibilityEvaluator):
         water_counts: np.ndarray,
         config: AnalysisConfig,
     ) -> list[AccessibilityResult]:
-        """质心法评估"""
+        """Centroid method evaluation"""
         results = []
         for i, residue in enumerate(residues):
             accessible = min_distances[i] <= config.threshold
@@ -60,13 +60,13 @@ class CentroidEvaluator(AccessibilityEvaluator):
 
 
 class PerAtomEvaluator(AccessibilityEvaluator):
-    """原子级方法评估器"""
+    """Per-atom method evaluator"""
 
     def __init__(self):
         self._atom_distances_cache: dict[tuple, np.ndarray] = {}
 
     def set_atom_distances(self, atom_distances: dict[tuple, np.ndarray]):
-        """设置原子距离缓存"""
+        """Set atom distance cache"""
         self._atom_distances_cache = atom_distances
 
     def evaluate(
@@ -76,13 +76,13 @@ class PerAtomEvaluator(AccessibilityEvaluator):
         water_counts: np.ndarray,
         config: AnalysisConfig,
     ) -> list[AccessibilityResult]:
-        """原子级方法评估"""
+        """Per-atom method evaluation"""
         results = []
         for i, residue in enumerate(residues):
             key = (residue.chain, str(residue.resnum))
             atom_dists = self._atom_distances_cache.get(key, np.array([np.inf]))
 
-            # 计算原子级可及性
+            # Calculate per-atom accessibility
             accessible = self._evaluate_per_atom(
                 residue=residue,
                 atom_distances=atom_dists,
@@ -108,45 +108,45 @@ class PerAtomEvaluator(AccessibilityEvaluator):
         config: AnalysisConfig,
     ) -> bool:
         """
-        原子级可及性判断逻辑
+        Per-atom accessibility determination logic
 
         Args:
-            residue: 残基信息
-            atom_distances: 原子距离数组
-            centroid_distance: 质心距离
-            config: 分析配置
+            residue: Residue information
+            atom_distances: Atom distance array
+            centroid_distance: Centroid distance
+            config: Analysis configuration
 
         Returns:
-            bool: 是否可及
+            bool: Whether accessible
         """
         n_atoms = len(atom_distances)
         if n_atoms == 0:
             return False
 
-        # 质心距离过大时直接判定为不可及
+        # If centroid distance is too large, directly judge as inaccessible
         if centroid_distance > (config.threshold + config.margin):
             return False
 
-        # 统计命中原子数
+        # Count hit atoms
         n_hits = int((atom_distances <= config.threshold).sum())
 
-        # 判断是否为小残基
+        # Determine if it's a small residue
         is_small = (
             residue.resname.upper() in config.small_residues
             or n_atoms <= config.small_residue_size
         )
 
         if is_small:
-            # 小残基：只需满足最小命中数
+            # Small residue: only need to meet minimum hit count
             return n_hits >= config.min_hits
         else:
-            # 普通残基：需同时满足比例和最小命中数
+            # Normal residue: need to satisfy both fraction and minimum hit count
             fraction = float(n_hits) / float(n_atoms)
             return fraction >= config.fraction_threshold and n_hits >= config.min_hits
 
 
 class EvaluatorFactory:
-    """评估器工厂"""
+    """Evaluator factory"""
 
     @staticmethod
     def create_evaluator(
@@ -154,14 +154,14 @@ class EvaluatorFactory:
         atom_distances: dict[tuple, np.ndarray] | None = None,
     ) -> AccessibilityEvaluator:
         """
-        创建评估器
+        Create evaluator
 
         Args:
-            method: 方法类型
-            atom_distances: 原子距离字典（仅peratom方法需要）
+            method: Method type
+            atom_distances: Atom distance dictionary (only needed for peratom method)
 
         Returns:
-            AccessibilityEvaluator: 评估器实例
+            AccessibilityEvaluator: Evaluator instance
         """
         if method == MethodType.CENTROID:
             return CentroidEvaluator()
@@ -171,4 +171,4 @@ class EvaluatorFactory:
                 evaluator.set_atom_distances(atom_distances)
             return evaluator
         else:
-            raise ValueError(f"未知的方法类型: {method}")
+            raise ValueError(f"Unknown method type: {method}")

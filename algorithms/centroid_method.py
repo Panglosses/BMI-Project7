@@ -1,5 +1,5 @@
 """
-质心法实现
+Centroid method implementation
 """
 
 from core.data_models import (
@@ -14,12 +14,12 @@ from core.accessibility_evaluator import CentroidEvaluator
 
 
 class CentroidMethod:
-    """质心法"""
+    """Centroid method"""
 
     def __init__(self, config: AnalysisConfig | None = None):
         """
         Args:
-            config: 分析配置
+            config: Analysis configuration
         """
         self.config = config or AnalysisConfig()
         self.distance_calculator = ChunkedDistanceCalculator(
@@ -31,32 +31,32 @@ class CentroidMethod:
         self,
         residues: list[ResidueInfo],
         waters: WaterInfo,
-        structure=None,  # 保持接口一致，但质心法不需要structure
+        structure=None,  # Keep interface consistent, but centroid method does not need structure
     ) -> list[AccessibilityResult]:
         """
-        执行质心法分析
+        Perform centroid method analysis
 
         Args:
-            residues: 残基列表
-            waters: 水分子信息
-            structure: BioPython结构对象（可选）
+            residues: Residue list
+            waters: Water molecule information
+            structure: BioPython structure object (optional)
 
         Returns:
-            list[AccessibilityResult]: 可及性结果
+            list[AccessibilityResult]: Accessibility results
         """
-        # 验证输入
+        # Validate input
         if not residues:
             return []
 
-        # 计算最小距离
+        # Calculate minimum distances
         min_distances = self.distance_calculator.compute_min_distances(residues, waters)
 
-        # 统计半径内的水分子数量
+        # Count water molecules within radius
         water_counts = self.distance_calculator.count_waters_within_radius(
             residues, waters, self.config.radius
         )
 
-        # 评估可及性
+        # Evaluate accessibility
         results = self.evaluator.evaluate(
             residues, min_distances, water_counts, self.config
         )
@@ -64,5 +64,5 @@ class CentroidMethod:
         return results
 
     def get_method_type(self) -> MethodType:
-        """获取方法类型"""
+        """Get method type"""
         return MethodType.CENTROID
