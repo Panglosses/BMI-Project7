@@ -1,0 +1,46 @@
+draft
+pdb
+bmi
+output
+CLAUDE.md
+__pycache__
+
+# 运行时生成的文件
+benchmark_results.txt
+*.log
+*.tmp
+
+# Jupyter notebook缓存
+.ipynb_checkpoints/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器临时文件
+*~
+*.swp
+*.swo
+
+# Python缓存文件（除了__pycache__目录）
+*.py[cod]
+*$py.class
+
+# 测试缓存
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 虚拟环境（通用）
+pyenv/
+myenv/
+venv/
+env/
+ENV/
+
+# IDE配置文件
+.claude/
+.vscode/
+.idea/
+*.swp
+*.sublime-*
