@@ -1,0 +1,42 @@
+draft
+pdb
+bmi
+output
+__pycache__
+
+# temp files
+benchmark_results.txt
+*.log
+*.tmp
+*~
+*.swp
+*.swo
+
+# Jupyter notebook cache
+.ipynb_checkpoints/
+
+# sys files
+.DS_Store
+Thumbs.db
+
+# Python cache
+*.py[cod]
+*$py.class
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# venv
+pyenv/
+myenv/
+venv/
+env/
+ENV/
+
+# IDE
+.claude/
+.vscode/
+.idea/
+*.swp
+*.sublime-*
