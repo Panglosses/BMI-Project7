@@ -38,7 +38,7 @@ class MethodFactory:
         elif method_type == MethodType.PERATOM:
             return PerAtomMethod(config)
         else:
-            raise ValueError(f"未知的方法类型: {method_type}")
+            raise ValueError(f"Unknown method type: {method_type}")
 
     @staticmethod
     def get_available_methods() -> list:
