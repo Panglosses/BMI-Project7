@@ -251,7 +251,10 @@ def main(args=None):
             match_ratio = compare_results(custom_results, sasa_results)
 
             # Save comparison results
-            comparison_file = Path(args.output_dir) / "comparison.csv"
+            # 修改这里：使用 dry_pdb 文件名作为前缀
+            dry_prefix = Path(args.dry_pdb).stem
+            comparison_file = Path(args.output_dir) / f"{dry_prefix}_comparison.csv"
+            
             comparison_table = ResultFormatter.create_comparison_table(
                 custom_results, sasa_results, match_ratio
             )
@@ -275,7 +278,8 @@ def main(args=None):
             print(f"\nAnalysis completed!")
             print(f"Result file: {custom_file}")
             if not args.no_comparison:
-                print(f"Comparison file: {Path(args.output_dir) / 'comparison.csv'}")
+                # 同时更新这里的显示信息
+                print(f"Comparison file: {comparison_file}")
 
         return 0
 
