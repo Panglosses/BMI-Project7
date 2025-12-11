@@ -7,9 +7,9 @@ python cli/main.py --wet-pdb "path/to/wet_structure.pdb" --dry-pdb "path/to/dry_
 
 explanation:
 python cli/main.py \
-  --wet-pdb "path/to/wet_structure.pdb" \          # Hydrated PDB file (with water molecules)
-  --dry-pdb "path/to/dry_structure.pdb" \          # Raw PDB file (without water, for FreeSASA)
-  --method "peratom" \                             # Analysis method: "centroid" or "peratom"
+  --wet-pdb "path/to/wet_structure.pdb" \          # (Necessary) Hydrated PDB file (with water molecules)
+  --dry-pdb "path/to/dry_structure.pdb" \          # (Necessary) Raw PDB file (without water, for FreeSASA)
+  --method "peratom" \                             # (Default peratom method)Analysis method: "centroid" or "peratom"
   --threshold 3.5 \                                # Accessibility threshold (Å): distance < threshold = accessible
   --margin 2.0 \                                   # Centroid filter margin (Å): centroid distance > (threshold + margin) = filtered out
   --R 5.0 \                                        # Radius for water counting (Å): count waters within the radius

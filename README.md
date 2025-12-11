@@ -29,12 +29,27 @@ Protein folding is driven by the hydrophobic effect, which buries hydrophobic re
 It is recommended to place the PDB files to be processed (e.g., `SUMO1_water.pdb`) inside `./pdb/`
 
 ```bash
-# Per-atom method (default)
-python -m solvent_analysis \
-  --wet-pdb ./pdb/SUMO1_water.pdb \
-  --dry-pdb ./pdb/SUMO1.pdb \
-  --method peratom \
-  --verbose
+
+Command line example:
+python cli/main.py --wet-pdb "path/to/wet_structure.pdb" --dry-pdb "path/to/dry_structure.pdb" --method "peratom" --threshold 3.5 --margin 2.0 --R 5.0 --fraction-threshold 0.20 --min-hits 1 --small-residue-size 5 --chunk 5000 --nproc 4 --output-dir "./results" --verbose --no-comparison
+
+explanation:
+python cli/main.py \
+  --wet-pdb  (Necessary) PDB file with water molecules
+  --dry-pdb  (Necessary) Raw PDB file for FreeSASA
+  --method  (Default peratom method) Analysis method: "centroid" or "peratom"
+  --threshold 3.5 Accessibility threshold (Å): distance < threshold = accessible
+  --margin 2.0 Centroid filter margin (Å): centroid distance > (threshold + margin) = filtered out
+  --R 5.0  Radius for water counting (Å): count waters within the radius
+  --fraction-threshold 0.20 Fraction threshold for peratom method (0-1): higher than this ratio of atoms within threshold is considered accessible
+  --min-hits 1  Minimum atom hits for peratom method: at least this count of atoms within threshold is considered accessible
+  --small-residue-size 5  Small residue threshold: residues with ≤ this count atoms apply 'min hit' rule while the bigger one applies 'fraction threshold' rule
+  --chunk 5000  Chunk size for distance calculations: larger ---> more memory and faster
+  --nproc 4  Number of parallel processes: use more cores for faster computation
+  --output-dir  Output directory for results files
+  --verbose Show detailed progress and statistics
+  --no-comparison Skip FreeSASA comparison (dry-pdb still required but not used)
+'''
 ```
 
 ### Python API
