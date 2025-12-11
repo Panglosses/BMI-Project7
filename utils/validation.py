@@ -1,5 +1,5 @@
 """
-验证工具
+Validation Utilities
 """
 
 from pathlib import Path
@@ -9,40 +9,40 @@ from core.data_models import AnalysisConfig
 
 def validate_pdb_file(filepath: str | Path) -> bool:
     """
-    验证PDB文件
+    Validates a PDB file.
 
     Args:
-        filepath: PDB文件路径
+        filepath: Path to the PDB file.
 
     Returns:
-        bool: 是否有效
+        bool: True if the file is valid.
     """
     path = Path(filepath)
 
-    # 检查文件是否存在
+    # Check file existence
     if not path.exists():
-        raise FileNotFoundError(f"PDB文件不存在: {filepath}")
+        raise FileNotFoundError(f"PDB file not found: {filepath}")
 
-    # 检查文件大小
+    # Check file size
     if path.stat().st_size == 0:
-        raise ValueError(f"PDB文件为空: {filepath}")
+        raise ValueError(f"PDB file is empty: {filepath}")
 
-    # 检查文件扩展名
+    # Check file extension
     if path.suffix.lower() not in [".pdb", ".ent"]:
-        raise ValueError(f"文件扩展名不是PDB格式: {filepath}")
+        raise ValueError(f"File extension is not a recognized PDB format: {filepath}")
 
-    # 简单检查文件内容
+    # Basic content validation
     try:
         with open(path, "r") as f:
             first_line = f.readline().strip()
-            # PDB文件通常以"HEADER"、"ATOM"或"HETATM"开头
+            # PDB files typically start with specific record types
             if not any(
                 first_line.startswith(prefix)
                 for prefix in ["HEADER", "ATOM", "HETATM", "MODEL"]
             ):
-                # 有些PDB文件可能没有HEADER，但第一行应该是有效的PDB记录
+                # Some PDB files might lack a HEADER
                 if len(first_line) > 0 and first_line[0] not in [" ", "\t"]:
-                    # 检查是否是有效的PDB记录类型
+                    # Check for a valid PDB record type
                     record_type = first_line[0:6].strip()
                     if record_type not in [
                         "HEADER",
@@ -54,57 +54,57 @@ def validate_pdb_file(filepath: str | Path) -> bool:
                         "END",
                     ]:
                         raise ValueError(
-                            f"PDB文件格式无效，第一行: {first_line[:50]}..."
+                            f"Invalid PDB file format. First line: {first_line[:50]}..."
                         )
     except UnicodeDecodeError:
-        raise ValueError(f"PDB文件不是文本格式: {filepath}")
+        raise ValueError(f"PDB file is not a text file: {filepath}")
 
     return True
 
 
 def validate_config(config: AnalysisConfig) -> bool:
     """
-    验证配置
+    Validates the analysis configuration.
 
     Args:
-        config: 分析配置
+        config: Analysis configuration object.
 
     Returns:
-        bool: 是否有效
+        bool: True if the configuration is valid.
     """
-    config.validate()
+    config.validate()  # Uses the built-in validate method
     return True
 
 
 def validate_output_dir(directory: str | Path) -> Path:
     """
-    验证输出目录
+    Validates and prepares an output directory.
 
     Args:
-        directory: 目录路径
+        directory: Path to the output directory.
 
     Returns:
-        Path: 有效的目录路径
+        Path: A validated, writable Path object for the directory.
     """
     path = Path(directory)
 
-    # 如果目录不存在，尝试创建
+    # Create directory if it doesn't exist
     if not path.exists():
         try:
             path.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            raise ValueError(f"无法创建输出目录 {directory}: {e}")
+            raise ValueError(f"Failed to create output directory {directory}: {e}")
 
-    # 检查是否可写
+    # Ensure it's a directory
     if not path.is_dir():
-        raise ValueError(f"输出路径不是目录: {directory}")
+        raise ValueError(f"Output path is not a directory: {directory}")
 
-    # 简单检查是否可写
+    # Simple write-permission test
     test_file = path / ".write_test"
     try:
         test_file.touch()
         test_file.unlink()
     except Exception as e:
-        raise ValueError(f"输出目录不可写 {directory}: {e}")
+        raise ValueError(f"Output directory is not writable {directory}: {e}")
 
     return path

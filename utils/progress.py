@@ -1,5 +1,5 @@
 """
-进度条工具
+Progress Bar Utility
 """
 
 import sys
@@ -7,7 +7,7 @@ import time
 
 
 class ProgressBar:
-    """简单进度条"""
+    """A simple progress bar for tracking task completion."""
 
     def __init__(
         self,
@@ -20,12 +20,12 @@ class ProgressBar:
     ):
         """
         Args:
-            total: 总任务数
-            prefix: 前缀文本
-            suffix: 后缀文本
-            length: 进度条长度
-            fill: 填充字符
-            print_end: 打印结束字符
+            total: Total number of iterations/tasks.
+            prefix: Text to display before the progress bar.
+            suffix: Text to display after the progress bar and ETA.
+            length: Character length of the progress bar.
+            fill: Character used to fill the completed portion.
+            print_end: End character for prints (e.g., '\\r' for updating in place).
         """
         self.total = total
         self.prefix = prefix
@@ -37,13 +37,13 @@ class ProgressBar:
         self.current = 0
 
     def update(self, iteration: int):
-        """更新进度"""
+        """Updates the progress bar display for the given iteration."""
         self.current = iteration
         percent = f"{100 * (iteration / float(self.total)):.1f}"
         filled_length = int(self.length * iteration // self.total)
         bar = self.fill * filled_length + "-" * (self.length - filled_length)
 
-        # 计算剩余时间
+        # Calculate estimated time remaining
         elapsed = time.time() - self.start_time
         if iteration > 0:
             eta = (elapsed / iteration) * (self.total - iteration)
@@ -58,32 +58,32 @@ class ProgressBar:
         sys.stdout.flush()
 
     def increment(self):
-        """增加一个进度"""
+        """Increments the progress by one step and updates the display."""
         self.update(self.current + 1)
 
     def finish(self):
-        """完成进度条"""
+        """Completes the progress bar, ensuring it shows 100%."""
         self.update(self.total)
-        print()  # 换行
+        print()  # Move to the next line
 
     @staticmethod
     def iterate(iterable, total: int | None = None, **kwargs):
         """
-        迭代器包装器
+        A wrapper that yields items from an iterable while displaying a progress bar.
 
         Args:
-            iterable: 可迭代对象
-            total: 总数量（如果可迭代对象没有len()）
-            **kwargs: 传递给ProgressBar的参数
+            iterable: The object to iterate over.
+            total: Total number of items (required if iterable has no __len__).
+            **kwargs: Additional arguments passed to the ProgressBar constructor.
 
         Yields:
-            迭代元素
+            Each item from the iterable.
         """
         if total is None:
             try:
                 total = len(iterable)
             except TypeError:
-                raise ValueError("必须提供total参数或可迭代对象支持len()")
+                raise ValueError("A 'total' argument must be provided if the iterable has no __len__.")
 
         progress = ProgressBar(total, **kwargs)
         for i, item in enumerate(iterable):

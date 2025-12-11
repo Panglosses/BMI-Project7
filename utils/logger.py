@@ -1,5 +1,5 @@
 """
-日志工具
+Logging Utility
 """
 
 import logging
@@ -14,39 +14,39 @@ def setup_logger(
     console: bool = True,
 ) -> logging.Logger:
     """
-    设置日志记录器
+    Configures and returns a logger.
 
     Args:
-        name: 日志记录器名称
-        level: 日志级别
-        log_file: 日志文件路径（可选）
-        console: 是否输出到控制台
+        name: Name of the logger.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+        log_file: Optional path to a log file. If provided, logs will be written here.
+        console: Whether to output logs to the console.
 
     Returns:
-        logging.Logger: 配置好的日志记录器
+        logging.Logger: A configured logger instance.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    # 清除现有的处理器
+    # Remove any existing handlers to avoid duplicate logs
     logger.handlers.clear()
 
-    # 创建格式化器
+    # Create a formatter for log messages
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # 控制台处理器
+    # Console handler (stdout)
     if console:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(level)
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
-    # 文件处理器
+    # File handler
     if log_file:
-        # 确保日志目录存在
+        # Ensure the log directory exists
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -60,28 +60,29 @@ def setup_logger(
 
 def get_logger(name: str = "solvent_analysis") -> logging.Logger:
     """
-    获取日志记录器
+    Retrieves a logger. If it hasn't been configured, sets it up with defaults.
 
     Args:
-        name: 日志记录器名称
+        name: Name of the logger.
 
     Returns:
-        logging.Logger: 日志记录器
+        logging.Logger: The requested logger instance.
     """
     logger = logging.getLogger(name)
     if not logger.handlers:
-        # 如果没有处理器，使用默认设置
+        # Apply default configuration if no handlers are present
         setup_logger(name)
     return logger
 
 
 class LogMixin:
-    """日志混合类"""
+    """A mixin class that provides a convenient logger property to its subclasses."""
 
     @property
     def logger(self) -> logging.Logger:
-        """获取类日志记录器"""
+        """Returns a logger instance specific to the class using this mixin."""
         if not hasattr(self, "_logger"):
+            # Create a logger named after the class for better context
             class_name = self.__class__.__name__
             self._logger = get_logger(f"solvent_analysis.{class_name}")
         return self._logger
